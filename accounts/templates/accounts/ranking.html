@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Dot Art Ranking</h2>
+
+  <style>
+    .dot-art-container {
+      display: inline-block;
+      margin: 10px;
+      border: 1px solid #ccc;
+      padding: 5px;
+      text-align: center;
+    }
+    .dot-art-grid {
+      display: grid;
+      grid-template-columns: repeat(15, 10px);
+      grid-template-rows: repeat(15, 10px);
+      width: 150px;
+      height: 150px;
+      border: 1px solid black;
+      margin: 0 auto;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border: 1px solid #eee;
+    }
+  </style>
+
+  {% if top_dot_arts %}
+    {% for entry in top_dot_arts %}
+      <div class="dot-art-container">
+        <div class="dot-art-grid" id="dot-art-{{ forloop.counter }}"></div>
+        <p>Votes: {{ entry.votes }}</p>
+      </div>
+      <script>
+        (function(){
+          const dotArtGrid = document.getElementById('dot-art-{{ forloop.counter }}');
+          const dotArtString = '{{ entry.dot_art_string }}';
+          for (let i = 0; i < 225; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            dot.style.backgroundColor = dotArtString[i] === '1' ? 'black' : 'white';
+            dot.style.border = '1px solid #eee';
+            dotArtGrid.appendChild(dot);
+          }
+        })();
+      </script>
+    {% endfor %}
+  {% else %}
+    <p>No dot arts have been voted on yet.</p>
+  {% endif %}
+{% endblock %}
