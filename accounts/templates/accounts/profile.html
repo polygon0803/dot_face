@@ -1,15 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>{{ user.username }}'s Profile</h2>
+  <h2 id="profile-username"></h2>
 
-  <p>Joined on: {{ user.date_joined }}</p>
+  <p>Joined on: <span id="profile-joined-date"></span></p>
 
   <h3>Dot Art</h3>
   <div id="dot-art-grid" style="display: grid; grid-template-columns: repeat(15, 20px); grid-template-rows: repeat(15, 20px); width: 300px; height: 300px; border: 1px solid black;"></div>
 
+  <h3>About Me</h3>
+  <p>Bio: <span id="profile-bio"></span></p>
+  <p>Hobbies: <span id="profile-hobbies"></span></p>
+  <p>Favorite Things: <span id="profile-favorite-things"></span></p>
+
+  <p><a href="{% url 'edit_profile' %}">Edit Profile</a></p>
+  <p><a href="{% url 'logout' %}">Logout</a></p>
+
   <script>
     const dotArtGrid = document.getElementById('dot-art-grid');
+    const profileUsername = document.getElementById('profile-username');
+    const profileJoinedDate = document.getElementById('profile-joined-date');
+    const profileBio = document.getElementById('profile-bio');
+    const profileHobbies = document.getElementById('profile-hobbies');
+    const profileFavoriteThings = document.getElementById('profile-favorite-things');
+
     function drawDotArt(dotArtString) {
       dotArtGrid.innerHTML = '';
       for (let i = 0; i < 225; i++) {
@@ -21,15 +35,18 @@
         dotArtGrid.appendChild(dot);
       }
     }
-    // Initial draw
-    drawDotArt('{{ user_profile.dot_art }}');
+
+    // Fetch profile data from API
+    fetch('{{ api_url }}')
+      .then(response => response.json())
+      .then(data => {
+        profileUsername.textContent = data.username + "'s Profile";
+        profileJoinedDate.textContent = new Date(data.date_joined).toLocaleDateString();
+        drawDotArt(data.dot_art);
+        profileBio.textContent = data.bio || "Not set";
+        profileHobbies.textContent = data.hobbies || "Not set";
+        profileFavoriteThings.textContent = data.favorite_things || "Not set";
+      })
+      .catch(error => console.error('Error fetching profile data:', error));
   </script>
-
-  <h3>About Me</h3>
-  <p>Bio: {{ user_profile.bio|default:"Not set" }}</p>
-  <p>Hobbies: {{ user_profile.hobbies|default:"Not set" }}</p>
-  <p>Favorite Things: {{ user_profile.favorite_things|default:"Not set" }}</p>
-
-  <p><a href="{% url 'edit_profile' %}">Edit Profile</a></p>
-  <p><a href="{% url 'logout' %}">Logout</a></p>
 {% endblock %}

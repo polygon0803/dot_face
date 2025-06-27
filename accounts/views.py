@@ -231,6 +231,7 @@ def profile_view(request, username):
     context = {
         'user': target_user,
         'user_profile': user_profile,
+        'api_url': request.build_absolute_uri(f'/api/user_profile/{username}/'),
     }
     return render(request, 'accounts/profile.html', context)
 
