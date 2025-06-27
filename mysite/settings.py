@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-l2dlnc!ljv3_5z$8%i*9so6p--v_oo%^nlofmi0lmf#a+cyfqe
 # SECURITY WARNING: don't run with debug turned on in production!
 import os
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME'), '127.0.0.1']
 
@@ -128,4 +128,4 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = '/accounts/profile/'
+LOGIN_REDIRECT_URL = '/accounts/generate/'

@@ -1,29 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Welcome, {{ user.username }}!</h2>
-  <p>You joined on: {{ user.date_joined }}</p>
+  <h2>{{ user.username }}'s Profile</h2>
 
-  <h3>Your Dot Art Profile Picture</h3>
+  <p>Joined on: {{ user.date_joined }}</p>
+
+  <h3>Dot Art</h3>
   <div id="dot-art-grid" style="display: grid; grid-template-columns: repeat(15, 20px); grid-template-rows: repeat(15, 20px); width: 300px; height: 300px; border: 1px solid black;"></div>
-
-  <form method="post" id="dot-art-form">
-    {% csrf_token %}
-    {{ form.dot_art.as_hidden }}
-    <button type="button" id="random-button">Generate Random</button>
-    <button type="submit">Save Dot Art</button>
-    <button type="button" id="vote-button">Vote for this Art</button>
-  </form>
-
-  <p><a href="{% url 'logout' %}">Logout</a></p>
 
   <script>
     const dotArtGrid = document.getElementById('dot-art-grid');
-    const dotArtInput = document.getElementById('id_dot_art');
-    const randomButton = document.getElementById('random-button');
-    const voteButton = document.getElementById('vote-button');
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
     function drawDotArt(dotArtString) {
       dotArtGrid.innerHTML = '';
       for (let i = 0; i < 225; i++) {
@@ -32,56 +18,18 @@
         dot.style.height = '20px';
         dot.style.backgroundColor = dotArtString[i] === '1' ? 'black' : 'white';
         dot.style.border = '1px solid #eee';
-        dot.dataset.index = i; // Store index for easy access
-        dot.addEventListener('click', function() {
-          let currentArt = dotArtInput.value.split('');
-          if (this.style.backgroundColor === 'black') {
-            this.style.backgroundColor = 'white';
-            currentArt[this.dataset.index] = '0';
-          } else {
-            this.style.backgroundColor = 'black';
-            currentArt[this.dataset.index] = '1';
-          }
-          dotArtInput.value = currentArt.join('');
-        });
         dotArtGrid.appendChild(dot);
       }
     }
-
     // Initial draw
-    drawDotArt('{{ dot_art }}');
-
-    randomButton.addEventListener('click', () => {
-      fetch('{% url "generate_dot_art" %}')
-        .then(response => response.json())
-        .then(data => {
-          if (data.dot_art) {
-            dotArtInput.value = data.dot_art;
-            drawDotArt(data.dot_art);
-          }
-        })
-        .catch(error => console.error('Error fetching dot art:', error));
-    });
-
-    voteButton.addEventListener('click', () => {
-      const currentDotArt = dotArtInput.value;
-      fetch('{% url "vote_dot_art" %}', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken,
-        },
-        body: JSON.stringify({ dot_art_string: currentDotArt }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'success') {
-          alert(`Vote successful! This art now has ${data.votes} votes.`);
-        } else {
-          alert(`Error: ${data.message}`);
-        }
-      })
-      .catch(error => console.error('Error voting for dot art:', error));
-    });
+    drawDotArt('{{ user_profile.dot_art }}');
   </script>
+
+  <h3>About Me</h3>
+  <p>Bio: {{ user_profile.bio|default:"Not set" }}</p>
+  <p>Hobbies: {{ user_profile.hobbies|default:"Not set" }}</p>
+  <p>Favorite Things: {{ user_profile.favorite_things|default:"Not set" }}</p>
+
+  <p><a href="{% url 'edit_profile' %}">Edit Profile</a></p>
+  <p><a href="{% url 'logout' %}">Logout</a></p>
 {% endblock %}

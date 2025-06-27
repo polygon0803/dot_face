@@ -1,6 +1,6 @@
 import random
 import json
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -136,7 +136,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('profile')  # ログイン後のリダイレクト先
+            return redirect('generate')  # ログイン後のリダイレクト先
     else:
         form = AuthenticationForm()
     return render(request, 'accounts/login.html', {'form': form})
@@ -151,20 +151,20 @@ def signup_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('profile') # サインアップ後のリダイレクト先
+            return redirect('generate') # サインアップ後のリダイレクト先
     else:
         form = UserCreationForm()
     return render(request, 'accounts/signup.html', {'form': form})
 
 @login_required
-def profile_view(request):
+def generate_view(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
         form = UserProfileForm(request.POST, instance=user_profile)
         if form.is_valid():
             form.save()
-            return redirect('profile')
+            return redirect('generate')
     else:
         form = UserProfileForm(instance=user_profile)
         if not user_profile.dot_art:
@@ -176,7 +176,7 @@ def profile_view(request):
         'form': form,
         'dot_art': user_profile.dot_art,
     }
-    return render(request, 'accounts/profile.html', context)
+    return render(request, 'accounts/generate.html', context)
 
 @login_required
 def generate_new_dot_art_ajax(request):
@@ -201,6 +201,38 @@ def vote_dot_art_ajax(request):
         except json.JSONDecodeError:
             return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
+@login_required
+def edit_profile_view(request):
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=user_profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile', username=request.user.username) # 新しい表示用プロフィールページにリダイレクト
+    else:
+        form = UserProfileForm(instance=user_profile)
+
+    context = {
+        'user': request.user,
+        'form': form,
+    }
+    return render(request, 'accounts/edit_profile.html', context)
+
+from django.contrib.auth.models import User # Import User model
+
+# ... (rest of the code)
+
+@login_required
+def profile_view(request, username):
+    target_user = get_object_or_404(User, username=username)
+    user_profile, created = UserProfile.objects.get_or_create(user=target_user)
+    context = {
+        'user': target_user,
+        'user_profile': user_profile,
+    }
+    return render(request, 'accounts/profile.html', context)
 
 def ranking_view(request):
     top_dot_arts = DotArtEntry.objects.order_by('-votes')[:100]
