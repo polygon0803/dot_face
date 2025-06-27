@@ -1,7 +1,7 @@
 import random
 import json
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -145,6 +145,17 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
+def signup_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('profile') # サインアップ後のリダイレクト先
+    else:
+        form = UserCreationForm()
+    return render(request, 'accounts/signup.html', {'form': form})
+
 @login_required
 def profile_view(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
@@ -174,7 +185,7 @@ def generate_new_dot_art_ajax(request):
         return JsonResponse({'dot_art': new_dot_art})
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-@csrf_exempt # For simplicity, remove in production and use proper CSRF handling
+@csrf_exempt # For simplicity, will remove later if needed
 @login_required
 def vote_dot_art_ajax(request):
     if request.method == 'POST':
