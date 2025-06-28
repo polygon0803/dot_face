@@ -2,70 +2,9 @@
 
 {% block content %}
   <h2>Sign Up</h2>
-  <form id="signup-form">
+  <form method="post">
     {% csrf_token %}
-    <p>
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
-    </p>
-    <p>
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
-    </p>
-    <button type="submit">Sign Up with Email</button>
+    {{ form.as_p }}
+    <button type="submit">Sign Up</button>
   </form>
-  <button id="google-signup-btn">Sign Up with Google</button>
-  <p id="error-message" style="color: red;"></p>
-
-  <script type="module">
-    import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-
-    const auth = window.firebaseAuth;
-    const signupForm = document.getElementById('signup-form');
-    const googleSignupBtn = document.getElementById('google-signup-btn');
-    const errorMessage = document.getElementById('error-message');
-
-    signupForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = signupForm.email.value;
-      const password = signupForm.password.value;
-
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const idToken = await userCredential.user.getIdToken();
-        await sendTokenToDjango(idToken);
-      } catch (error) {
-        errorMessage.textContent = error.message;
-      }
-    });
-
-    googleSignupBtn.addEventListener('click', async () => {
-      const provider = new GoogleAuthProvider();
-      try {
-        const userCredential = await signInWithPopup(auth, provider);
-        const idToken = await userCredential.user.getIdToken();
-        await sendTokenToDjango(idToken);
-      } catch (error) {
-        errorMessage.textContent = error.message;
-      }
-    });
-
-    async function sendTokenToDjango(idToken) {
-      const response = await fetch('{% url "firebase_login" %}', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({ idToken: idToken })
-      });
-
-      if (response.ok) {
-        window.location.href = '{% url "generate" %}'; // Redirect to generate page on success
-      } else {
-        const errorData = await response.json();
-        errorMessage.textContent = errorData.error || 'Django login failed';
-      }
-    }
-  </script>
 {% endblock %}
