@@ -1,24 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-from django.conf import settings
-
-class CustomUser(AbstractUser):
-    username = models.CharField(
-        "username",
-        max_length=15,
-        unique=True,
-        help_text=(
-            "15 characters or fewer. Letters, digits and @/./+/-/_ only."
-        ),
-        validators=[AbstractUser.username_validator],
-        error_messages={
-            "unique": ("A user with that username already exists."),
-        },
-    )
-    pass
+from django.contrib.auth.models import User
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     dot_art = models.CharField(max_length=225, blank=True, null=True) # 15x15 = 225 characters (0 or 1)
     bio = models.TextField(blank=True, null=True)
     hobbies = models.CharField(max_length=255, blank=True, null=True)
