@@ -1,5 +1,11 @@
 from django import forms
-from .models import UserProfile
+from django.contrib.auth.forms import UserCreationForm
+from .models import CustomUser, UserProfile
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = CustomUser
+        fields = ('username',)
 
 class UserProfileForm(forms.ModelForm):
     class Meta:

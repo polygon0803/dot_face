@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt # For simplicity, will remove later if needed
 from .models import UserProfile, DotArtEntry
-from .forms import UserProfileForm
+from .forms import CustomUserCreationForm, UserProfileForm
 
 # 15x15 dot art presets (225 characters)
 # '1' represents a black dot, '0' represents a white dot
@@ -147,13 +147,13 @@ def logout_view(request):
 
 def signup_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             return redirect('generate') # サインアップ後のリダイレクト先
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'accounts/signup.html', {'form': form})
 
 @login_required
@@ -220,12 +220,13 @@ def edit_profile_view(request):
     }
     return render(request, 'accounts/edit_profile.html', context)
 
-from django.contrib.auth.models import User # Import User model
+from django.contrib.auth import get_user_model
 
 # ... (rest of the code)
 
 @login_required
 def profile_view(request, username):
+    User = get_user_model() # Get the active user model
     target_user = get_object_or_404(User, username=username)
     user_profile, created = UserProfile.objects.get_or_create(user=target_user)
     context = {
