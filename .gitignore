@@ -33,6 +33,7 @@ venv/
 *.mo
 local_settings.py
 db.sqlite3
+serviceAccountKey.json
 
 # OS generated files
 .DS_Store
