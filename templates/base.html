@@ -2,6 +2,30 @@
 <html>
 <head>
     <title>My Django App</title>
+    <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com;"> -->
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+      import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyATHZT0qAN3TDYbghIwcZdGRKw1dku6wLE", // Replace with your actual API Key
+        authDomain: "facedot0803.firebaseapp.com",
+        projectId: "facedot0803",
+        storageBucket: "facedot0803.firebasestorage.app",
+        messagingSenderId: "825744733395",
+        appId: "1:825744733395:web:f4ff2450d60c0ce6681026",
+        measurementId: "G-HVBHHFRPC4"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      // Make auth object globally accessible for other scripts
+      window.firebaseAuth = auth;
+    </script>
 </head>
 <body>
     <nav>
