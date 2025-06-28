@@ -1,12 +1,5 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, UserProfile, DotArtEntry
-
-class CustomUserAdmin(UserAdmin):
-    model = CustomUser
-    list_display = ['email', 'username', 'is_staff']
-
-admin.site.register(CustomUser, CustomUserAdmin)
+from .models import UserProfile, DotArtEntry
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
